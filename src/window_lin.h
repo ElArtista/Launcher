@@ -28,31 +28,14 @@
 /*   ' ') '( (/                                                                                                      */
 /*     '   '  `                                                                                                      */
 /*********************************************************************************************************************/
-#ifndef _WINDOW_H_
-#define _WINDOW_H_
+#ifndef _WINDOW_LIN_H_
+#define _WINDOW_LIN_H_
 
-#ifdef _WIN32
-#include "window_win.h"
-#else
-#include "window_lin.h"
-#endif
-
-/* Render callback for the window */
-typedef void(*window_render_fn)(void* wnd);
-
-struct window
+struct wnd_internal
 {
-    /* Current progress shown */
-    int progress;
-    /* Renderer for the current instance */
-    window_render_fn renderer;
-    /* Indicates whether the window loop should stop */
-    int should_close;
-    /* Internal window data */
-    struct wnd_internal internal;
+    int dummy;
 };
 
-void window_open(struct window* w);
-void window_loop(struct window* w);
+struct window;
 
-#endif /* ! _WINDOW_H_ */
+#endif /* ! _WINDOW_LIN_H_ */

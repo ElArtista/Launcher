@@ -28,31 +28,29 @@
 /*   ' ') '( (/                                                                                                      */
 /*     '   '  `                                                                                                      */
 /*********************************************************************************************************************/
-#ifndef _WINDOW_H_
-#define _WINDOW_H_
+#ifndef _WINDOW_WIN_H_
+#define _WINDOW_WIN_H_
 
-#ifdef _WIN32
-#include "window_win.h"
-#else
-#include "window_lin.h"
-#endif
+#include <windows.h>
 
-/* Render callback for the window */
-typedef void(*window_render_fn)(void* wnd);
-
-struct window
+/* Window positioning state */
+struct wnd_pos_state
 {
-    /* Current progress shown */
-    int progress;
-    /* Renderer for the current instance */
-    window_render_fn renderer;
-    /* Indicates whether the window loop should stop */
-    int should_close;
-    /* Internal window data */
-    struct wnd_internal internal;
+    int is_moving;
+    POINT mpos;
 };
 
-void window_open(struct window* w);
-void window_loop(struct window* w);
+/* Window internal data */
+struct wnd_internal
+{
+    /* Main state */
+    HWND hwnd;       /* The window handle */
+    /* Positioning state */
+    struct wnd_pos_state ps;
+    /* Rendering window */
+    HWND rhwnd;
+    HDC rhdc;        /* The window device context */
+    HGLRC context;   /* The opengl context handle */
+};
 
-#endif /* ! _WINDOW_H_ */
+#endif /* ! _WINDOW_WIN_H_ */

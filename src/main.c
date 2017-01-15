@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "window.h"
+#include <stdlib.h>
 #include <glad/glad.h>
 #include <tinycthread.h>
 
@@ -69,9 +70,9 @@ void gl_check_last_link_error(GLuint id)
     }
 }
 
-static void renderer(struct window* wnd)
+static void renderer(void* userdata)
 {
-    (void) wnd;
+    (void) userdata;
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

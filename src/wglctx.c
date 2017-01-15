@@ -1,3 +1,4 @@
+#ifdef _WIN32
 #include "wglctx.h"
 #include <assert.h>
 #include <stdio.h>
@@ -259,3 +260,4 @@ void create_wgl_context(HWND hwnd, HDC* hdc, HGLRC* hglrc)
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, 0, GL_TRUE);
     }
 }
+#endif
