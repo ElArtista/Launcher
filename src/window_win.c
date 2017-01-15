@@ -1,11 +1,35 @@
-#ifdef _WIN32
-#include "window_win.h"
+#include "plat.h"
+#ifdef OS_WINDOWS
+#include "window.h"
 #include <windows.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <glad/glad.h>
 #include "wglctx.h"
 #include <stdio.h>
+
+/*----------------------------------------------------------------------
+ * Platform specific data
+ *----------------------------------------------------------------------*/
+/* Window positioning state */
+struct wnd_pos_state
+{
+    int is_moving;
+    POINT mpos;
+};
+
+/* Window internal data */
+struct wnd_internal
+{
+    /* Main state */
+    HWND hwnd;       /* The window handle */
+    /* Positioning state */
+    struct wnd_pos_state ps;
+    /* Rendering window */
+    HWND rhwnd;
+    HDC rhdc;        /* The window device context */
+    HGLRC context;   /* The opengl context handle */
+};
 
 /*----------------------------------------------------------------------
  * Rendering window
@@ -106,24 +130,24 @@ static LRESULT CALLBACK window_callback_func(HWND hh, UINT mm, WPARAM ww, LPARAM
         }
         case WM_LBUTTONDOWN: {
             if ((GetKeyState(VK_LMENU) & 0x8000) && (ww & MK_LBUTTON)) {
-                wnd->internal.ps.is_moving = 1;
+                wnd->internal->ps.is_moving = 1;
                 SetCapture(hh);
                 POINT cursor;
                 memset(&cursor, 0, sizeof(POINT));
                 GetCursorPos(&cursor);
-                wnd->internal.ps.mpos = cursor;
+                wnd->internal->ps.mpos = cursor;
             }
             break;
         }
         case WM_LBUTTONUP: {
-            wnd->internal.ps.is_moving = 0;
+            wnd->internal->ps.is_moving = 0;
             ReleaseCapture();
-            memset(&wnd->internal.ps.mpos, 0, sizeof(POINT));
+            memset(&wnd->internal->ps.mpos, 0, sizeof(POINT));
             break;
         }
         case WM_MOUSEMOVE: {
-            if (wnd->internal.ps.is_moving) {
-                POINT prevpos = wnd->internal.ps.mpos;
+            if (wnd->internal->ps.is_moving) {
+                POINT prevpos = wnd->internal->ps.mpos;
                 POINT curpos;
                 memset(&curpos, 0, sizeof(POINT));
                 GetCursorPos(&curpos);
@@ -140,7 +164,7 @@ static LRESULT CALLBACK window_callback_func(HWND hh, UINT mm, WPARAM ww, LPARAM
                     wrect.top + yDiff,
                     0, 0, SWP_NOSIZE | SWP_SHOWWINDOW
                 );
-                wnd->internal.ps.mpos = curpos;
+                wnd->internal->ps.mpos = curpos;
             }
             break;
         }
@@ -152,9 +176,9 @@ static LRESULT CALLBACK window_callback_func(HWND hh, UINT mm, WPARAM ww, LPARAM
         case WM_KEYUP: {
             switch (ww) {
                 case VK_LMENU: {
-                    wnd->internal.ps.is_moving = 0;
+                    wnd->internal->ps.is_moving = 0;
                     ReleaseCapture();
-                    memset(&wnd->internal.ps.mpos, 0, sizeof(POINT));
+                    memset(&wnd->internal->ps.mpos, 0, sizeof(POINT));
                     break;
                 }
             }
@@ -168,10 +192,10 @@ static LRESULT CALLBACK window_callback_func(HWND hh, UINT mm, WPARAM ww, LPARAM
             RECT rect = { 0, 0, nw, nh };
             AdjustWindowRectEx(
                 &rect,
-                GetWindowLongPtr(wnd->internal.rhwnd, GWL_STYLE),
+                GetWindowLongPtr(wnd->internal->rhwnd, GWL_STYLE),
                 0,
-                GetWindowLongPtr(wnd->internal.rhwnd, GWL_EXSTYLE));
-            SetWindowPos(wnd->internal.rhwnd, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOREPOSITION | SWP_NOZORDER);
+                GetWindowLongPtr(wnd->internal->rhwnd, GWL_EXSTYLE));
+            SetWindowPos(wnd->internal->rhwnd, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOREPOSITION | SWP_NOZORDER);
             break;
         }
         case WM_PAINT: {
@@ -293,11 +317,11 @@ static void poll_window_events(struct window* window)
     /* Window message var */
     MSG msg;
     /* Peek message loop, poll for events */
-    while(PeekMessage(&msg, window->internal.hwnd, 0, 0, PM_REMOVE)) {
+    while(PeekMessage(&msg, window->internal->hwnd, 0, 0, PM_REMOVE)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
-    while(PeekMessage(&msg, window->internal.rhwnd, 0, 0, PM_REMOVE)) {
+    while(PeekMessage(&msg, window->internal->rhwnd, 0, 0, PM_REMOVE)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
@@ -306,11 +330,14 @@ static void poll_window_events(struct window* window)
 static void window_release(struct window* wnd)
 {
     /* Release rendering window resources */
-    DestroyWindow(wnd->internal.hwnd);
-    wglMakeCurrent(wnd->internal.rhdc, 0);
-    wglDeleteContext(wnd->internal.context);
-    ReleaseDC(wnd->internal.rhwnd, wnd->internal.rhdc);
-    DestroyWindow(wnd->internal.rhwnd);
+    DestroyWindow(wnd->internal->hwnd);
+    wglMakeCurrent(wnd->internal->rhdc, 0);
+    wglDeleteContext(wnd->internal->context);
+    ReleaseDC(wnd->internal->rhwnd, wnd->internal->rhdc);
+    DestroyWindow(wnd->internal->rhwnd);
+    /* Release internal data struct */
+    free(wnd->internal);
+    wnd->internal = 0;
 }
 
 static long long get_timer_value()
@@ -335,9 +362,9 @@ void window_loop(struct window* wnd)
         time_val_t t2 = get_timer_value();
         if (t2 - t1 >= 1000 / FPS) {
             wnd->renderer(wnd);
-            SwapBuffers(wnd->internal.rhdc);
-            UpdateWindow(wnd->internal.hwnd);
-            RedrawWindow(wnd->internal.hwnd, 0, 0, RDW_ERASE | RDW_INTERNALPAINT | RDW_INVALIDATE);
+            SwapBuffers(wnd->internal->rhdc);
+            UpdateWindow(wnd->internal->hwnd);
+            RedrawWindow(wnd->internal->hwnd, 0, 0, RDW_ERASE | RDW_INTERNALPAINT | RDW_INVALIDATE);
             poll_window_events(wnd);
         }
         else
@@ -349,21 +376,21 @@ void window_loop(struct window* wnd)
 
 void window_open(struct window* window)
 {
-    /* Clear internal struct */
-    memset(&window->internal, 0, sizeof(struct wnd_internal));
+    /* Create internal struct */
+    window->internal = calloc(1, sizeof(struct wnd_internal));
 
     /* Create rendering winodw instance */
-    window->internal.rhwnd = create_rendering_window();
+    window->internal->rhwnd = create_rendering_window();
 
     /* Create opengl context */
     create_wgl_context(
-        window->internal.rhwnd,
-        &window->internal.rhdc,
-        &window->internal.context
+        window->internal->rhwnd,
+        &window->internal->rhdc,
+        &window->internal->context
     );
 
     /* Create the window instance */
-    window->internal.hwnd = create_window(window);
+    window->internal->hwnd = create_window(window);
 
     /* Set the close flag */
     window->should_close = 0;

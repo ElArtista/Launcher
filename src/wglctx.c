@@ -1,5 +1,5 @@
-#ifdef _WIN32
-#include "wglctx.h"
+#include "plat.h"
+#ifdef OS_WINDOWS
 #include <assert.h>
 #include <stdio.h>
 #include <glad/glad.h>

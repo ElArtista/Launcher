@@ -31,12 +31,6 @@
 #ifndef _WINDOW_H_
 #define _WINDOW_H_
 
-#ifdef _WIN32
-#include "window_win.h"
-#else
-#include "window_lin.h"
-#endif
-
 /* Render callback for the window */
 typedef void(*window_render_fn)(void* wnd);
 
@@ -49,7 +43,7 @@ struct window
     /* Indicates whether the window loop should stop */
     int should_close;
     /* Internal window data */
-    struct wnd_internal internal;
+    struct wnd_internal* internal;
 };
 
 void window_open(struct window* w);
