@@ -31,6 +31,13 @@
 #ifndef _RENDERER_H_
 #define _RENDERER_H_
 
-void renderer(void* userdata);
+struct renderer_state {
+    unsigned int quad_vao, quad_vbo;
+    unsigned int shdr;
+};
+
+void renderer_init(struct renderer_state* rs);
+void renderer_render(struct renderer_state* rs);
+void renderer_destroy(struct renderer_state* rs);
 
 #endif /* ! _RENDERER_H_ */

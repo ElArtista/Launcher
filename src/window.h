@@ -38,8 +38,10 @@ struct window
 {
     /* Current progress shown */
     int progress;
-    /* Renderer for the current instance */
-    window_render_fn renderer;
+    /* Render function for the current instance */
+    window_render_fn render_fn;
+    /* Userdata for render function */
+    void* render_data;
     /* Indicates whether the window loop should stop */
     int should_close;
     /* Internal window data */

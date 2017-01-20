@@ -35,11 +35,22 @@
 
 static int window_thrd(void* arg)
 {
+    /* Create window and context */
     struct window* wnd = (struct window*) arg;
     window_open(wnd);
+    /* Initialize renderer state */
+    struct renderer_state rs;
+    renderer_init(&rs);
+    /* Loop */
+    wnd->render_data = &rs;
     window_loop(wnd);
+    /* Deinitialize renderer state */
+    renderer_destroy(&rs);
     return 0;
 }
+
+/* Proxy fn to avoid func ptr casting */
+static void render_fn(void* arg) { renderer_render(arg); }
 
 int main(int argc, char* argv[])
 {
@@ -49,7 +60,7 @@ int main(int argc, char* argv[])
     /* Open window */
     struct window wnd;
     wnd.progress = 57;
-    wnd.renderer = renderer;
+    wnd.render_fn = render_fn;
 
     /* Launch window loop thread */
     thrd_t wnd_thrd;

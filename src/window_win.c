@@ -361,7 +361,7 @@ void window_loop(struct window* wnd)
     while(!wnd->should_close) {
         time_val_t t2 = get_timer_value();
         if (t2 - t1 >= 1000 / FPS) {
-            wnd->renderer(wnd);
+            wnd->render_fn(wnd->render_data);
             SwapBuffers(wnd->internal->rhdc);
             UpdateWindow(wnd->internal->hwnd);
             RedrawWindow(wnd->internal->hwnd, 0, 0, RDW_ERASE | RDW_INTERNALPAINT | RDW_INVALIDATE);

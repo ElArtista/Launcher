@@ -26,17 +26,8 @@ static const char* fshdr_src = GLSRC(
     }
 );
 
-void renderer(void* userdata)
+void renderer_init(struct renderer_state* rs)
 {
-    (void) userdata;
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glClearColor(0.0f, 0.0f, 1.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -58,22 +49,43 @@ void renderer(void* userdata)
     glShaderSource(fsh, 1, &fshdr_src, 0);
     glCompileShader(fsh);
 
-    GLuint shprog;
-    shprog = glCreateProgram();
-    glAttachShader(shprog, vsh);
-    glAttachShader(shprog, fsh);
-    glLinkProgram(shprog);
-
-    glUseProgram(shprog);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glUseProgram(0);
+    GLuint shdr;
+    shdr = glCreateProgram();
+    glAttachShader(shdr, vsh);
+    glAttachShader(shdr, fsh);
+    glLinkProgram(shdr);
 
     glDeleteShader(fsh);
     glDeleteShader(vsh);
-    glDeleteProgram(shprog);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDeleteBuffers(1, &vbo);
+    rs->quad_vbo = vbo;
+    rs->quad_vao = vao;
+    rs->shdr = shdr;
+}
+
+void renderer_render(struct renderer_state* rs)
+{
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glClearColor(0.0f, 0.0f, 1.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glUseProgram(rs->shdr);
+    glBindVertexArray(rs->quad_vao);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
     glBindVertexArray(0);
-    glDeleteVertexArrays(1, &vao);
+    glUseProgram(0);
+}
+
+void renderer_destroy(struct renderer_state* rs)
+{
+    glUseProgram(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glDeleteProgram(rs->shdr);
+    glDeleteBuffers(1, &rs->quad_vbo);
+    glDeleteVertexArrays(1, &rs->quad_vao);
 }

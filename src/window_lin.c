@@ -335,7 +335,7 @@ void window_loop(struct window* w)
             }
         }
 
-        w->renderer(0);
+        w->render_fn(w->render_data);
         window_swap_buffers(w);
     }
     window_release(w);
