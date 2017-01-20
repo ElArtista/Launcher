@@ -61,6 +61,9 @@ int main(int argc, char* argv[])
     struct window wnd;
     wnd.progress = 57;
     wnd.render_fn = render_fn;
+    wnd.width = 640;
+    wnd.height = 480;
+    wnd.title = "Launcher";
 
     /* Launch window loop thread */
     thrd_t wnd_thrd;

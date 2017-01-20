@@ -109,7 +109,6 @@ static HWND create_rendering_window()
  *----------------------------------------------------------------------*/
 /* The window class unique identifier */
 static const char* window_class_name = "launcher_window";
-static const char* window_name = "Launcher";
 
 static LRESULT CALLBACK window_callback_func(HWND hh, UINT mm, WPARAM ww, LPARAM ll)
 {
@@ -296,12 +295,12 @@ static HWND create_window(struct window* wnd)
     hwnd = CreateWindowExA(
         WS_EX_LAYERED,         /* dwExStyle    */
         window_class_name,     /* lpClassName  */
-        window_name,           /* lpWindowName */
+        wnd->title,            /* lpWindowName */
         WS_POPUP | WS_VISIBLE, /* dwStyle      */
         CW_USEDEFAULT,         /* x            */
         CW_USEDEFAULT,         /* y            */
-        640,                   /* nWidth       */
-        480,                   /* nHeight      */
+        wnd->width,            /* nWidth       */
+        wnd->height,           /* nHeight      */
         0,                     /* nWndParent   */
         0,                     /* nMenu        */
         GetModuleHandle(0),    /* hInstance    */

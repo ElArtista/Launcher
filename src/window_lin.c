@@ -181,7 +181,7 @@ static GLXContext create_glx_context(Display* display, GLXFBConfig fbc, int ver_
     return glx_ctx;
 }
 
-static int create_window(struct window* w, GLXFBConfig fbc, int width, int height)
+static int create_window(struct window* w, GLXFBConfig fbc, int width, int height, const char* title)
 {
     Display* display = w->internal->display;
     /* Get a visual */
@@ -228,7 +228,7 @@ static int create_window(struct window* w, GLXFBConfig fbc, int width, int heigh
     XFlush(display);
 
     /* Set title */
-    XStoreName(display, wnd, "Launcher");
+    XStoreName(display, wnd, title);
     /* Map window */
     XMapWindow(display, wnd);
 
@@ -291,8 +291,7 @@ void window_open(struct window* w)
     }
 
     /* Create window */
-    int width = 400, height = 300;
-    int result = create_window(w, fbc, width, height);
+    int result = create_window(w, fbc, w->width, w->height, w->title);
     if (!result) {
         printf("Failed to create window.\n");
         return;

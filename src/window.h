@@ -38,6 +38,10 @@ struct window
 {
     /* Current progress shown */
     int progress;
+    /* Window dimensions */
+    int width, height;
+    /* Window title */
+    const char* title;
     /* Render function for the current instance */
     window_render_fn render_fn;
     /* Userdata for render function */
