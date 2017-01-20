@@ -154,6 +154,7 @@ static GLXContext create_glx_context(Display* display, GLXFBConfig fbc, int ver_
         int context_attribs[] = {
             GLX_CONTEXT_MAJOR_VERSION_ARB, ver_maj,
             GLX_CONTEXT_MINOR_VERSION_ARB, ver_min,
+            GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB,
             /* GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB, */
             None
         };
