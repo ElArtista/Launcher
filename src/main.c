@@ -59,6 +59,7 @@ int main(int argc, char* argv[])
 
     /* Open window */
     struct window wnd;
+    wnd.should_close = 0;
     wnd.progress = 57;
     wnd.render_fn = render_fn;
     wnd.width = 640;

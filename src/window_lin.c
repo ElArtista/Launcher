@@ -326,9 +326,6 @@ void window_open(struct window* w)
         glDebugMessageCallback(gl_debug_proc, 0);
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, 0, GL_TRUE);
     }
-
-    /* Set close flag initially to false */
-    w->should_close = 0;
 }
 
 void window_loop(struct window* w)

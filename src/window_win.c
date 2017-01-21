@@ -403,8 +403,5 @@ void window_open(struct window* window)
 
     /* Create the window instance */
     window->internal->hwnd = create_window(window);
-
-    /* Set the close flag */
-    window->should_close = 0;
 }
 #endif
