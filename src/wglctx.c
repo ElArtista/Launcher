@@ -133,7 +133,7 @@ static void initialize_opengl_extensions(struct wgl_extension_funcs* funcs)
     DestroyWindow(hwnd);
 }
 
-void create_wgl_context(HWND hwnd, HDC* hdc, HGLRC* hglrc)
+void create_wgl_context(HWND hwnd, HDC* hdc, HGLRC* hglrc, int ver_maj, int ver_min)
 {
     /* Holder for the wgl extension functions */
     struct wgl_extension_funcs wgl;
@@ -177,8 +177,8 @@ void create_wgl_context(HWND hwnd, HDC* hdc, HGLRC* hglrc)
 
     /* Create context using extension and make it current */
     int ctx_attribs[] = {
-        WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-        WGL_CONTEXT_MINOR_VERSION_ARB, 3,
+        WGL_CONTEXT_MAJOR_VERSION_ARB, ver_maj,
+        WGL_CONTEXT_MINOR_VERSION_ARB, ver_min,
         WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB,
         WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
         0

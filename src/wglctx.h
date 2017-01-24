@@ -32,6 +32,6 @@
 #define _WGLCTX_H_
 
 #include <windows.h>
-void create_wgl_context(HWND hwnd, HDC* hdc, HGLRC* hglrc);
+void create_wgl_context(HWND hwnd, HDC* hdc, HGLRC* hglrc, int ver_maj, int ver_min);
 
 #endif /* ! _WGLCTX_H_ */

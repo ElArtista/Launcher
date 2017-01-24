@@ -388,7 +388,8 @@ void window_open(struct window* window)
     create_wgl_context(
         window->internal->rhwnd,
         &window->internal->rhdc,
-        &window->internal->context
+        &window->internal->context,
+        3, 3
     );
 
     /* Register debug callback */
